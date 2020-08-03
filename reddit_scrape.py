@@ -19,6 +19,9 @@ class RedditScrape(object):
     def __init__(self, username, directory, dry_run, prefix):
         self.username = username
 
+        if not os.path.exists(directory):
+            os.makedirs(directory)
+
         if not os.path.isdir(directory):
             raise RuntimeError('Invalid directory')
 
@@ -45,7 +48,7 @@ class RedditScrape(object):
                     filename = re.match('https://i.redd.it\/(\w+\.\w+)', url)
                     if not filename:
                         # Old imgur links
-                        filename = re.match('http://i.imgur.com\/(\w+\.\w+)', url)
+                        filename = re.match('https://i.imgur.com\/(\w+\.\w+)', url)
                     try:
                         filename = filename.group(1)
                     except AttributeError:
@@ -60,7 +63,12 @@ class RedditScrape(object):
 
                         # Check if file already exists
                         if not os.path.isfile(path):
-                            urlretrieve(url, path)
+                            try:
+                                urlretrieve(url, path)
+                                pass
+                            except:
+                                print("Oops!", sys.exc_info()[0], "occurred.")
+                                pass
 
                     sys.stdout.write('.')
                     sys.stdout.flush()
